@@ -114,7 +114,7 @@ export default {
     },
     defTTS(data) {
       const APIKey = "70f421f96b8443f8bf44b25b3717fbab";
-      const APIlinkTts = `http://api.voicerss.org/?key=${APIKey}&hl=en-us&b64=true&c=MP3&src=${data}`;
+      const APIlinkTts = `https://api.voicerss.org/?key=${APIKey}&hl=en-us&b64=true&c=MP3&src=${data}`;
 
       axios
         .get(APIlinkTts)
