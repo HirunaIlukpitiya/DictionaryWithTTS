@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-[20%] py-[3%]">
+  <div class="container mx-auto px-[10%] lg:px-[20%] py-[3%]">
     <h1 class="font-sans text-5xl font-bold text-blue-600">Dictionary</h1>
     <br />
     <form @submit.prevent="submitForm">
