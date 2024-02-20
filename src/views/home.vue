@@ -1,52 +1,81 @@
 <template>
-  <form @submit.prevent="submitForm">
-    <label class="input input-bordered flex items-center gap-2">
-      <input type="text" v-model="word" class="grow" placeholder="Search" />
-      <button type="submit">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 16 16"
-          fill="currentColor"
-          class="w-4 h-4 opacity-70"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-            clip-rule="evenodd"
+  <div class="container mx-auto px-[20%] py-[3%]">
+    <h1 class="font-sans text-5xl font-bold text-blue-600">Dictionary</h1>
+    <br />
+    <form @submit.prevent="submitForm">
+      <div class="mb-3">
+        <div class="relative mb-4 flex w-full flex-wrap items-stretch">
+          <input
+            type="text"
+            class="relative m-0 -mr-0.5 block min-w-0 flex-auto rounded-l border border-solid border-neutral-300 bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal leading-[1.6] text-neutral-700 outline-none transition duration-200 ease-in-out focus:z-[3] focus:border-primary focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"
+            placeholder="Search"
+            v-model="word"
           />
-        </svg>
-      </button>
-    </label>
-  </form>
-  <div v-if="response">
-    <h3>Results</h3>
-    <ol>
-      <li v-if="this.dataArrayNoun.length != 0">
-        noun
-        <div v-for="data in this.dataArrayNoun">
-          <ul>
-            <li>{{ data }}<button @click="defTTS(data)">🔊</button></li>
-          </ul>
+          <button
+            class="relative z-[2] rounded-r border-2 border-primary px-6 py-2 text-xs font-medium uppercase text-primary transition duration-150 ease-in-out hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0"
+            type="submit"
+            id="button-addon3"
+          >
+            Search
+          </button>
         </div>
-      </li>
-      <li v-if="this.dataArrayVerb.length != 0">
-        verb
-        <div v-for="data in this.dataArrayVerb">
-          <ul>
-            <li>{{ data }}<button @click="defTTS(data)">🔊</button></li>
-          </ul>
-        </div>
-      </li>
-    </ol>
+      </div>
+    </form>
+    <div v-if="response">
+      <h1 class="font-sans text-3xl font-semibold text-blue-800">Results</h1>
+      <br />
+      <ol>
+      ---------------------------------------
+        <div class="flex animate-pulse">
+  <div class="flex-shrink-0">
+    <span class="size-12 block bg-gray-200 rounded-full dark:bg-gray-700"></span>
+  </div>
+
+  <div class="ms-4 mt-2 w-full">
+    <h3 class="h-4 bg-gray-200 rounded-full dark:bg-gray-700" style="width: 40%;"></h3>
+
+    <ul class="mt-5 space-y-3">
+      <li class="w-full h-4 bg-gray-200 rounded-full dark:bg-gray-700"></li>
+      <li class="w-full h-4 bg-gray-200 rounded-full dark:bg-gray-700"></li>
+      <li class="w-full h-4 bg-gray-200 rounded-full dark:bg-gray-700"></li>
+      <li class="w-full h-4 bg-gray-200 rounded-full dark:bg-gray-700"></li>
+    </ul>
+  </div>
+</div>
+------------------------------------
+        <li v-if="this.dataArrayNoun.length != 0" class="italic font-semibold">
+          noun :
+          <div v-for="data in this.dataArrayNoun">
+            <ul>
+              <li class="not-italic font-normal list-disc text-justify">
+                {{ data }}<button @click="defTTS(data)">🔊</button>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <br />
+        <li v-if="this.dataArrayVerb.length != 0" class="italic font-semibold">
+          verb :
+          <div v-for="data in this.dataArrayVerb">
+            <ul>
+              <li class="not-italic font-normal list-disc text-justify">
+                {{ data }}<button @click="defTTS(data)">🔊</button>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+    </div>
   </div>
 </template>
 <script>
 import axios from "axios";
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 var inputWord = "";
 var APIlink = "";
+var errorMessage = "";
 var dataArrayLength = 0;
-var APIlinkTts = "";
-var bytes;
 export default {
   data() {
     return {
@@ -56,6 +85,10 @@ export default {
       refArray: [],
       dataArrayNoun: [],
       dataArrayVerb: [],
+      dataArrayAdverb: [],
+      dataArrayAdjectives: [],
+      synonyms: [],
+      phonetic: "",
     };
   },
   methods: {
@@ -64,6 +97,9 @@ export default {
       this.refArray = [];
       this.dataArrayNoun = [];
       this.dataArrayVerb = [];
+      this.dataArrayAdverb = [];
+      this.dataArrayAdjectives = [];
+      this.synonyms = [];
       inputWord = this.word;
       APIlink = `https://api.dictionaryapi.dev/api/v2/entries/en/${inputWord}`;
       console.log(inputWord);
@@ -110,6 +146,10 @@ export default {
         })
         .catch((error) => {
           console.log(error);
+          if (error.response.status == 404){
+            errorMessage = "No Definitions Found"
+          }
+          this.notifyError()
         });
     },
     defTTS(data) {
@@ -138,7 +178,14 @@ export default {
           console.error("Error fetching TTS:", error);
         });
     },
+    notifyError(){
+      toast.error(`${errorMessage}!`, {
+        autoClose: 2000,
+        position: toast.POSITION.TOP_CENTER,
+        transition: toast.TRANSITIONS.BOUNCE,
+      });
   },
+}
 };
 </script>
 <style></style>
