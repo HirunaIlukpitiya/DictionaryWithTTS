@@ -12,6 +12,7 @@
     "@headlessui/vue": "^1.7.5",
     "@heroicons/vue": "^2.0.13",
     "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@vueuse/core": "^10.8.0",
     "axios": "^1.6.7",
     "daisyui": "^4.7.2",
     "flowbite": "^2.3.0",
